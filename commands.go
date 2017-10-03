@@ -18,16 +18,25 @@ var curPath = "/"
 
 var errNotFound = errors.New("cannot find anything with that path")
 var errNotCompound = errors.New("cannot navigate into a non-compound")
+var errIsCompound = errors.New("cannot print out a compound")
+var errNotEnoughArgs = errors.New("not enough arguments")
 
 // represents a map of command names to the functions they run
 var commands map[string]command = map[string]command{
     "cd": cdCommand,
     "ls": lsCommand,
+    "tree": treeCommand,
+    "cat": catCommand,
     "exit": exitCommand,
 }
 
 // Enters an nbt compound
 func cdCommand(args string) error {
+    if args == "--help" {
+        fmt.Println("cd <path>")
+        return nil
+    }
+
     next, err := customLookup(args)
     if err != nil {
         return err
@@ -46,6 +55,11 @@ func cdCommand(args string) error {
 
 // View everything inside the current compound
 func lsCommand(args string) error {
+    if args == "--help" {
+        fmt.Println("ls [path]")
+        return nil
+    }
+
     if len(args) == 0 {
 
         tag, _ := customLookup(".")
@@ -64,6 +78,55 @@ func lsCommand(args string) error {
     }
 
     return nil
+}
+
+// Similar to ls, but views the whole tree
+func treeCommand(args string) error {
+    if args == "--help" {
+        fmt.Println("tree [path]")
+        return nil
+    }
+
+    if len(args) == 0 {
+
+        tag, _ := customLookup(".")
+        deepPrettyPrint(tag.(*nbt.Compound).Value)
+
+    } else {
+
+        path := resolve(curPath, args)
+        tag, _ := customLookup(path)
+
+        if comp, ok := tag.(*nbt.Compound); ok {
+            deepPrettyPrint(comp.Value)
+        } else {
+            return errNotCompound
+        }
+    }
+
+    return nil
+}
+
+// Prints out a value
+func catCommand(args string) error {
+    if args == "--help" {
+        fmt.Println("cat [path]")
+        return nil
+    }
+
+    if len(args) == 0 {
+        return errNotEnoughArgs
+    } else {
+
+        path := resolve(curPath, args)
+        tag, _ := customLookup(path)
+
+        if _, ok := tag.(*nbt.Compound); ok {
+            return errIsCompound
+        } else {
+            fmt.Println(tag)
+        }
+    }
 }
 
 // Exit the repl
