@@ -5,7 +5,6 @@ import (
     "errors"
     "fmt"
     "os"
-    "sort"
 )
 
 // represents a command
@@ -48,25 +47,23 @@ func cdCommand(args string) error {
 // View everything inside the current compound
 func lsCommand(args string) error {
     if len(args) == 0 {
+
         tag, _ := customLookup(".")
+        prettyPrint(tag.(*nbt.Compound).Value)
 
+    } else {
 
-        tags := tag.(*nbt.Compound).Value
+        path := resolve(curPath, args)
+        tag, _ := customLookup(path)
 
-
-        for _, key := range keys {
-            prettyPrint()
+        if comp, ok := tag.(*nbt.Compound); ok {
+            prettyPrint(comp.Value)
+        } else {
+            return errNotCompound
         }
-
-        return nil
     }
 
-    path := resolve(curPath, args)
-    tag, _ := customLookup(path)
-
-    for key, value := range tag.(*nbt.Compound).Value {
-        prettyPrint(key, value)
-    }
+    return nil
 }
 
 // Exit the repl
