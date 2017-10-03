@@ -55,9 +55,9 @@ func prettyPrint(nbt map[string]nbt.Tag) {
 
     for _, key := range keys {
         if comp, ok := nbt[key].(*nbt.Compound); ok {
-            fmt.Printf("%q [%s len(%d)]", key, comp.Type(), len(comp.Value))
+            fmt.Printf("%q: (%s len(%d))", key, comp.Type(), len(comp.Value))
         } else {
-            fmt.Printf("%q [%s]", key, nbt[key].Type())
+            fmt.Printf("%q: %s", key, nbt[key])
         }
     }
 }
@@ -88,10 +88,10 @@ func deepPrettyPrintRecur(deepness int, nbt map[string]nbt.Tag) {
         }
 
         if comp, ok := nbt[key].(*nbt.Compound); ok {
-            fmt.Printf("%s%q [%s len(%d)]", prefix, key, comp.Type(), len(comp.Value))
+            fmt.Printf("%s%q: (%s len(%d))", prefix, key, comp.Type(), len(comp.Value))
             deepPrettyPrintRecur(deepness + 1, comp.Value)
         } else {
-            fmt.Printf("%s%q [%s]", prefix, key, nbt[key].Type())
+            fmt.Printf("%s%q: %s", prefix, key, nbt[key])
         }
     }
 }
