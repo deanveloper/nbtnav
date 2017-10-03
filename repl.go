@@ -13,7 +13,7 @@ func startRepl(startAt *nbt.Compound) {
     scanner := bufio.NewScanner(os.Stdin)
 
     for scanner.Scan() {
-        fmt.Print(">>> ")
+        fmt.Printf("%q >>> ", curPath)
         str := scanner.Text()
 
         split := strings.SplitN(str, " ", 2)
