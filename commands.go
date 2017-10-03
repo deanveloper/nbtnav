@@ -127,6 +127,8 @@ func catCommand(args string) error {
             fmt.Println(tag)
         }
     }
+
+    return nil
 }
 
 // Exit the repl
