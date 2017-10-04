@@ -8,6 +8,7 @@ import (
 	"strings"
 )
 
+// Starts the read-evaluate-print-loop
 func startRepl(startAt *nbt.Compound) {
 	root = startAt
 	scanner := bufio.NewScanner(os.Stdin)
@@ -17,6 +18,7 @@ func startRepl(startAt *nbt.Compound) {
 		fmt.Printf("%q >>> ", curPath)
 		str := scanner.Text()
 
+		// evaluate
 		split := strings.SplitN(str, " ", 2)
 
 		var cmdString, args string
@@ -28,6 +30,8 @@ func startRepl(startAt *nbt.Compound) {
 		}
 
 		cmd := commands[cmdString]
+
+		// print
 		if cmd == nil {
 			fmt.Println("Command not found: " + cmdString)
 			continue
@@ -38,5 +42,7 @@ func startRepl(startAt *nbt.Compound) {
 			fmt.Println("Error:", err)
 			continue
 		}
+
+		// loop (restart loop)
 	}
 }
