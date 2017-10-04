@@ -1,45 +1,45 @@
 package main
 
 import (
-    "github.com/minero/minero-go/proto/nbt"
-    "os"
-    "fmt"
-    "io/ioutil"
-    "bytes"
-    "errors"
+	"bytes"
+	"errors"
+	"fmt"
+	"github.com/minero/minero-go/proto/nbt"
+	"io/ioutil"
+	"os"
 )
 
 func main() {
-    root := getCompoundFromArgs()
+	root := getCompoundFromArgs()
 
-    startRepl(root)
+	startRepl(root)
 }
 
 func getCompoundFromArgs() *nbt.Compound {
-    var root *nbt.Compound
+	var root *nbt.Compound
 
-    if len(os.Args) == 1 {
-        if os.Args[0] == "--help" {
-            fmt.Println("nbtnav `filename`")
-            os.Exit(0)
-        }
+	if len(os.Args) == 1 {
+		if os.Args[0] == "--help" {
+			fmt.Println("nbtnav `filename`")
+			os.Exit(0)
+		}
 
-        file, err := ioutil.ReadFile(os.Args[0])
-        checkErr(err)
+		file, err := ioutil.ReadFile(os.Args[0])
+		checkErr(err)
 
-        root, err = nbt.Read(bytes.NewReader(file))
-        checkErr(err)
+		root, err = nbt.Read(bytes.NewReader(file))
+		checkErr(err)
 
-    } else {
-        checkErr(errors.New("wrong number of arguments, use --help for help"))
-    }
+	} else {
+		checkErr(errors.New("wrong number of arguments, use --help for help"))
+	}
 
-    return root
+	return root
 }
 
 func checkErr(err error) {
-    if err != nil {
-        fmt.Println("Error:", err)
-        os.Exit(-1)
-    }
+	if err != nil {
+		fmt.Println("Error:", err)
+		os.Exit(-1)
+	}
 }
