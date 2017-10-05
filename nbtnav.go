@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	. "github.com/logrusorgru/aurora"
 	"github.com/minero/minero-go/proto/nbt"
 	"io/ioutil"
 	"os"
@@ -20,7 +21,8 @@ func getCompoundFromArgs() *nbt.Compound {
 
 	if len(os.Args) == 2 {
 		if os.Args[1] == "--help" {
-			fmt.Println("nbtnav `filename`")
+			fmt.Println(Blue("\tnbtnav `filename`").Bold())
+			fmt.Println(Aqua("\t\tAllows you to navigate an NBT file"))
 			os.Exit(0)
 		}
 
