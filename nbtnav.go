@@ -21,8 +21,10 @@ func getCompoundFromArgs() *nbt.Compound {
 
 	if len(os.Args) == 2 {
 		if os.Args[1] == "--help" {
+			fmt.Println()
 			fmt.Println(Blue("\tnbtnav `filename`").Bold())
 			fmt.Println(Cyan("\t\tAllows you to navigate an NBT file"))
+			fmt.Println()
 			os.Exit(0)
 		}
 
