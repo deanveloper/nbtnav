@@ -18,13 +18,13 @@ func main() {
 func getCompoundFromArgs() *nbt.Compound {
 	var root *nbt.Compound
 
-	if len(os.Args) == 1 {
-		if os.Args[0] == "--help" {
+	if len(os.Args) == 2 {
+		if os.Args[1] == "--help" {
 			fmt.Println("nbtnav `filename`")
 			os.Exit(0)
 		}
 
-		file, err := ioutil.ReadFile(os.Args[0])
+		file, err := ioutil.ReadFile(os.Args[1])
 		checkErr(err)
 
 		root, err = nbt.Read(bytes.NewReader(file))
