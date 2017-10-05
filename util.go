@@ -47,16 +47,17 @@ func customLookup(arg string) (nbt.Tag, error) {
 }
 
 // Pretty-Print
-func prettyPrint(nbt map[string]nbt.Tag) {
+func prettyPrint(tags map[string]nbt.Tag) {
 	// sort keys
-	keys := make([]string, len(nbt))
+	keys := make([]string, len(tags))
 	sort.Strings(keys)
 
 	for _, key := range keys {
-		if comp, ok := nbt[key].(*nbt.Compound); ok {
+		value := tags[key]
+		if comp, ok := value.(*nbt.Compound); ok {
 			fmt.Printf("%q: (%s len(%d))", key, comp.Type(), len(comp.Value))
 		} else {
-			fmt.Printf("%q: %s", key, nbt[key])
+			fmt.Printf("%q: %s", key, tags[key])
 		}
 	}
 }
@@ -67,9 +68,9 @@ func deepPrettyPrint(nbt map[string]nbt.Tag) {
 }
 
 // Recursively prints an nbt tree with a beautiful tree structure.
-func deepPrettyPrintRecur(deepness int, nbt map[string]nbt.Tag) {
+func deepPrettyPrintRecur(deepness int, tags map[string]nbt.Tag) {
 	// sort keys
-	keys := make([]string, len(nbt))
+	keys := make([]string, len(tags))
 	sort.Strings(keys)
 
 	// https://en.wikipedia.org/wiki/Box-drawing_character
@@ -86,11 +87,12 @@ func deepPrettyPrintRecur(deepness int, nbt map[string]nbt.Tag) {
 			prefix += "├───"
 		}
 
-		if comp, ok := nbt[key].(*nbt.Compound); ok {
+		value := tags[key]
+		if comp, ok := value.(*nbt.Compound); ok {
 			fmt.Printf("%s%q: (%s len(%d))", prefix, key, comp.Type(), len(comp.Value))
 			deepPrettyPrintRecur(deepness+1, comp.Value)
 		} else {
-			fmt.Printf("%s%q: %s", prefix, key, nbt[key])
+			fmt.Printf("%s%q: %s", prefix, key, tags[key])
 		}
 	}
 }
