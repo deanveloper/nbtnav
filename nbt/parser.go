@@ -105,4 +105,8 @@ func ParseString(buf *bufio.Reader) (string, error) {
 		}
 		arr[i] = byte(i8)
 	}
+
+	return arr, nil
 }
+
+// TODO add list, compound, intarray
