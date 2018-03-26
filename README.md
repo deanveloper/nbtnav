@@ -1,7 +1,6 @@
 # NBTNav
+## Still under construction!
 View NBT files within a terminal window.
-
-Still under construction!
 
 Use `nbtnav <file>` to view an nbt file!
 
