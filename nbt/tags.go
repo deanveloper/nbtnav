@@ -48,7 +48,7 @@ const (
 	// Represents the TAG_Compound type.
 	TagCompound
 
-	// Represents the TAG_Int_Array type. Called Int32 for consistiency.
+	// Represents the TAG_Int_Array type. Called Int32 for consistency.
 	TagInt32Array
 )
 

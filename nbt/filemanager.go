@@ -3,13 +3,12 @@ package nbt
 import (
 	"bytes"
 	"compress/zlib"
-	"errors"
 	"io"
 	"io/ioutil"
+	"compress/gzip"
 )
 
-var ErrNotNbt error = errors.New("File is not valid NBT")
-
+//
 func ReadFile(path string) (*Tag, error) {
 	data, err := ioutil.ReadFile(path)
 	if err != nil {

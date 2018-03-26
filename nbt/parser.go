@@ -3,14 +3,12 @@ package nbt
 import (
 	"encoding/binary"
 	"io"
-	"unsafe"
+	"bufio"
 )
 
 func Parse(r io.Reader) (*Tag, error) {
-	buf := bufio.NewBuffer(r)
-	for {
-
-	}
+	// TODO
+	return nil, nil
 }
 
 func ReadTagType(buf *bufio.Reader) (TagType, error) {
@@ -76,13 +74,13 @@ func ParseFloat64(buf *bufio.Reader) (float64, error) {
 }
 
 func ParseInt8Array(buf *bufio.Reader) ([]int8, error) {
-	len, err := ParseInt32(buf)
+	length, err := ParseInt32(buf)
 	if err != nil {
 		return nil, err
 	}
-	arr := make([]int8, len)
-	for i := 0; i < len; i++ {
-		i8, err := ReadInt8(buf)
+	arr := make([]int8, length)
+	for i := 0; i < int(length); i++ {
+		i8, err := ParseInt8(buf)
 		if err != nil {
 			return nil, err
 		}
@@ -92,21 +90,21 @@ func ParseInt8Array(buf *bufio.Reader) ([]int8, error) {
 }
 
 func ParseString(buf *bufio.Reader) (string, error) {
-	len, err := ParseInt16(buf)
+	length, err := ParseInt16(buf)
 	if err != nil {
 		return "", err
 	}
 
-	arr := make([]byte, len)
-	for i := 0; i < len; i++ {
-		i8, err := ReadInt8(buf)
+	arr := make([]byte, length)
+	for i := 0; i < int(length); i++ {
+		i8, err := ParseInt8(buf)
 		if err != nil {
-			return nil, err
+			return "", err
 		}
 		arr[i] = byte(i8)
 	}
 
-	return arr, nil
+	return string(arr), nil
 }
 
 // TODO add list, compound, intarray
