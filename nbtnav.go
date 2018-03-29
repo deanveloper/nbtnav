@@ -40,8 +40,8 @@ func getCompoundFromArgs() *nbt.Compound {
 			return root
 		}
 
-		reader = bytes.NewReader(fileBytes)
 		// Try gzip
+		reader = bytes.NewReader(fileBytes)
 		gReader, err := gzip.NewReader(reader)
 		if err == nil {
 			root, err = nbt.Read(gReader)
@@ -50,8 +50,8 @@ func getCompoundFromArgs() *nbt.Compound {
 			}
 		}
 
-		reader = bytes.NewReader(fileBytes)
 		// Try zlib
+		reader = bytes.NewReader(fileBytes)
 		zReader, err := zlib.NewReader(reader)
 		if err == nil {
 			root, err = nbt.Read(zReader)
