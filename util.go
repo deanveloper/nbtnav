@@ -9,6 +9,7 @@ import (
 	. "github.com/logrusorgru/aurora"
 	"encoding/hex"
 	"bytes"
+	"github.com/minero/minero/types"
 )
 
 // Essentially path.Join but will also clean.
@@ -20,7 +21,7 @@ func resolve(from, to string) string {
 }
 
 // Gets a tag with a given path, relative to the current tag
-func nextTag(nbtPath string) (nbt.Tag, error) {
+func pathToTag(nbtPath string) (nbt.Tag, error) {
 	absPath := resolve(curPath, nbtPath)
 
 	if absPath == "/" {
@@ -30,16 +31,7 @@ func nextTag(nbtPath string) (nbt.Tag, error) {
 	// Remove leading slash
 	absPath = absPath[1:]
 
-	split := strings.SplitN(absPath, "/", 2)
-	next := root.Value[split[0]]
-	for len(split) > 1 && split[1] != "" {
-		split = strings.SplitN(absPath, "/", 2)
-		next = root.Value[split[0]]
-
-		if next == nil {
-			return nil, errNotFound
-		}
-	}
+	next := root.Lookup(absPath)
 	if next == nil {
 		return nil, errNotFound
 	}
@@ -118,13 +110,11 @@ func prettyString(tag nbt.Tag) string {
 	if v, ok := tag.(*nbt.Int64); ok {
 		return fmt.Sprintf("(%s) %d", Green(tag.Type().String()[3:]), Cyan(v.Int64))
 	}
-	// Float
-	if v, ok := tag.(*nbt.Float32); ok {
-		return fmt.Sprintf("(%s) %.2f", Green(tag.Type().String()[3:]), Cyan(v.Float32))
-	}
-	// Double
-	if v, ok := tag.(*nbt.Float64); ok {
-		return fmt.Sprintf("(%s) %.2f", Green(tag.Type().String()[3:]), Cyan(v.Float64))
+	// Float/Double
+	_, ok32 := tag.(*nbt.Float32)
+	_, ok64 := tag.(*nbt.Float64)
+	if ok32 || ok64 {
+		return prettyFloat(tag, false)
 	}
 	// ByteArray
 	if v, ok := tag.(*nbt.ByteArray); ok {
@@ -190,4 +180,69 @@ func prettyByteArray(tag *nbt.ByteArray, longForm bool) string {
 		str += "..."
 	}
 	return fmt.Sprintf("(%s len(%d)) %s", Green(tag.Type().String()[3:]), Blue(len(tag.Value)), Cyan(str))
+}
+
+// Function to set a tag's value.
+// Automatically parses string, returns error if not able to parse.
+//
+// Cannot set value of compounds and lists
+func setTagValue(tag nbt.Tag, val string) error {
+	// Byte
+	if v, ok := tag.(*nbt.Int8); ok {
+		_, err := fmt.Sscan(val, &v.Int8)
+		return err
+	}
+	// Short
+	if v, ok := tag.(*nbt.Int16); ok {
+		_, err := fmt.Sscan(val, &v.Int16)
+		return err
+	}
+	// Int
+	if v, ok := tag.(*nbt.Int32); ok {
+		_, err := fmt.Sscan(val, &v.Int32)
+		return err
+	}
+	// Long
+	if v, ok := tag.(*nbt.Int64); ok {
+		_, err := fmt.Sscan(val, &v.Int64)
+		return err
+	}
+	// Float
+	if v, ok := tag.(*nbt.Float32); ok {
+		_, err := fmt.Sscan(val, &v.Float32)
+		return err
+	}
+	// Double
+	if v, ok := tag.(*nbt.Float64); ok {
+		_, err := fmt.Sscan(val, &v.Float64)
+		return err
+	}
+	// ByteArray
+	if v, ok := tag.(*nbt.ByteArray); ok {
+		slice, err := hex.DecodeString(val)
+		if err != nil {
+			return err
+		}
+		int8Slice := make([]types.Int8, len(slice))
+		for i := 0; i < len(slice); i++ {
+			int8Slice[i] = types.Int8(slice[i])
+		}
+		v.Value = int8Slice
+	}
+	// String
+	if v, ok := tag.(*nbt.String); ok {
+		v.Value = val
+	}
+
+	return nil
+}
+
+func typeFromString(str string) (nbt.TagType, error) {
+	for tag := nbt.TagEnd; tag <= nbt.TagIntArray; tag++ {
+		if str == tag.String()[3:] {
+			return tag, nil
+		}
+	}
+
+	return -1, errInvalidTagType
 }

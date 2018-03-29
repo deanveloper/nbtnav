@@ -1,10 +1,15 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"github.com/minero/minero-go/proto/nbt"
 	"os"
+	"strings"
+	"path"
+	"sort"
+	"strconv"
+	. "github.com/logrusorgru/aurora"
+	"bufio"
 )
 
 // represents a command
@@ -16,28 +21,51 @@ var root *nbt.Compound
 // represents the nbt path we are at
 var curPath = "/"
 
-var errNotFound = errors.New("cannot find tag with that path")
-var errNotCompound = errors.New("not a compound")
-var errPrintedCompound = errors.New("cannot print out a compound")
-var errNotEnoughArgs = errors.New("not enough arguments")
-
 // represents a map of command names to the functions they run
 var commands = map[string]command{
+	"help": helpCommand,
 	"cd":   cdCommand,
 	"ls":   lsCommand,
 	"tree": treeCommand,
 	"cat":  catCommand,
+	"set":  setCommand,
 	"exit": exitCommand,
 }
 
-// Enters an nbt compound
-func cdCommand(args string) error {
-	if args == "--help" {
-		fmt.Println("cd <path>")
-		return nil
+var help = map[string]string{
+	"help":                     "Shows command list",
+	"cd <compound>":            "Switches context to the provided compound. \"..\" supported.",
+	"ls [compound]":            "Lists the tags in the current context, or provided compound.",
+	"tree [compound]":          "Same as ls, but recursive.",
+	"cat <tag>":                "Prints out the value of the provided tag.",
+	"set <tag> <type> [value]": "Sets a tag's value/type.",
+	"exit":                     "Exits nbtnav",
+}
+
+func helpCommand(arg string) error {
+	keys := make([]string, len(help))
+	i := 0
+	maxLen := -1
+	for k := range help {
+		keys[i] = k
+		i++
+		if len(k) > maxLen {
+			maxLen = len(k)
+		}
+	}
+	max := strconv.Itoa(maxLen)
+	sort.Strings(keys)
+	for _, k := range keys {
+		fmt.Printf("%"+max+"s - %s\n", Blue(k), Cyan(help[k]))
 	}
 
-	next, err := nextTag(args)
+	return nil
+}
+
+// Enters an nbt compound
+func cdCommand(arg string) error {
+
+	next, err := pathToTag(arg)
 	if err != nil {
 		return err
 	}
@@ -46,21 +74,17 @@ func cdCommand(args string) error {
 		return errNotCompound
 	}
 
-	curPath = resolve(curPath, args)
+	curPath = resolve(curPath, arg)
 
 	return nil
 }
 
 // View everything inside the current compound
-func lsCommand(args string) error {
-	if args == "--help" {
-		fmt.Println("ls [path]")
-		return nil
-	}
+func lsCommand(arg string) error {
 
-	if args == "" {
+	if arg == "" {
 
-		tag, _ := nextTag(".")
+		tag, _ := pathToTag(".")
 		if comp, ok := tag.(*nbt.Compound); ok {
 			prettyPrint(comp.Value)
 		} else {
@@ -69,8 +93,8 @@ func lsCommand(args string) error {
 
 	} else {
 
-		path := resolve(curPath, args)
-		tag, _ := nextTag(path)
+		next := resolve(curPath, arg)
+		tag, _ := pathToTag(next)
 
 		if comp, ok := tag.(*nbt.Compound); ok {
 			prettyPrint(comp.Value)
@@ -83,21 +107,17 @@ func lsCommand(args string) error {
 }
 
 // Similar to ls, but views the whole tree
-func treeCommand(args string) error {
-	if args == "--help" {
-		fmt.Println("tree [path]")
-		return nil
-	}
+func treeCommand(arg string) error {
 
-	if args == "" {
+	if arg == "" {
 
-		tag, _ := nextTag(".")
+		tag, _ := pathToTag(".")
 		deepPrettyPrint(tag.(*nbt.Compound).Value)
 
 	} else {
 
-		path := resolve(curPath, args)
-		tag, _ := nextTag(path)
+		next := resolve(curPath, arg)
+		tag, _ := pathToTag(next)
 
 		if comp, ok := tag.(*nbt.Compound); ok {
 			deepPrettyPrint(comp.Value)
@@ -110,22 +130,23 @@ func treeCommand(args string) error {
 }
 
 // Prints out a value
-func catCommand(args string) error {
-	if args == "--help" {
-		fmt.Println("cat [path]")
-		return nil
-	}
+func catCommand(arg string) error {
 
-	if args == "" {
+	if arg == "" {
 		return errNotEnoughArgs
 	} else {
 
-		path := resolve(curPath, args)
-		tag, err := nextTag(path)
+		next := resolve(curPath, arg)
+		tag, err := pathToTag(next)
 		if err != nil {
 			return err
 		}
 
+		_, ok32 := tag.(*nbt.Float32)
+		_, ok64 := tag.(*nbt.Float64)
+		if ok32 || ok64 {
+			fmt.Println(prettyFloat(tag, true))
+		}
 		if _, ok := tag.(*nbt.Compound); ok {
 			return errPrintedCompound
 		} else if barr, ok := tag.(*nbt.ByteArray); ok {
@@ -139,7 +160,82 @@ func catCommand(args string) error {
 }
 
 // Exit the repl
-func exitCommand(args string) error {
+func exitCommand(arg string) error {
 	os.Exit(0)
 	return nil
+}
+
+func setCommand(arg string) error {
+	args := parseMultiArgs(arg)
+
+	if len(args) < 2 {
+		return errNotEnoughArgs
+	}
+
+	targ := args[0]
+
+	typ, err := typeFromString(args[1])
+	if err != nil {
+		return err
+	}
+
+	val := ""
+	if len(args) >= 3 {
+		val = args[2]
+	}
+
+	parentPath, tagName := path.Split(resolve(curPath, targ))
+	if tagName == "" {
+		return errNotFound
+	}
+
+	newTag := typ.New()
+	setTagValue(newTag, val)
+
+	parentTag, err := pathToTag(parentPath)
+	if err != nil {
+		return err
+	}
+
+	if comp, ok := parentTag.(*nbt.Compound); ok {
+		comp.Value[tagName] = newTag
+		return nil
+	} else {
+		return errNotFound
+	}
+}
+
+// Simple way to parse multiple arguments into a slice. Not very advanced but avoids
+// needing to use some giant framework.
+func parseMultiArgs(args string) []string {
+	scan := bufio.NewScanner(strings.NewReader(args))
+	scan.Split(bufio.ScanWords)
+
+	stringMode := false
+	var argSlice []string
+	index := -1
+
+	for scan.Scan() {
+		txt := scan.Text()
+
+		if !stringMode {
+			index++
+			argSlice = append(argSlice, "")
+		} else {
+			argSlice[index] += " "
+		}
+
+		oldTxt := txt
+		if txt = strings.TrimPrefix(oldTxt, `"`); oldTxt != txt {
+			stringMode = true
+		}
+		oldTxt = txt
+		if txt = strings.TrimSuffix(oldTxt, `"`); oldTxt != txt {
+			stringMode = false
+		}
+
+		argSlice[index] += txt
+	}
+
+	return argSlice
 }
