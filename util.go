@@ -6,6 +6,7 @@ import (
 	"sort"
 	"path"
 	"strings"
+	. "github.com/logrusorgru/aurora"
 )
 
 // Essentially path.Join but will also clean.
@@ -29,7 +30,7 @@ func nextTag(nbtPath string) (nbt.Tag, error) {
 
 	split := strings.SplitN(absPath, "/", 2)
 	next := root.Value[split[0]]
-	for split[1] != "" {
+	for len(split) == 1 || split[1] != "" {
 		split = strings.SplitN(absPath, "/", 2)
 		next = root.Value[split[0]]
 
@@ -54,9 +55,9 @@ func prettyPrint(tags map[string]nbt.Tag) {
 	for _, key := range keys {
 		value := tags[key]
 		if comp, ok := value.(*nbt.Compound); ok {
-			fmt.Printf("%q: (%s len(%d))\n", key, comp.Type(), len(comp.Value))
+			fmt.Printf("%s: (%s len(%d))\n", Blue(key), Green(comp.Type()), Cyan(len(comp.Value)))
 		} else {
-			fmt.Printf("%q: %s\n", key, tags[key])
+			fmt.Printf("%s: %s\n", Blue(key), Cyan(tags[key]))
 		}
 	}
 }
@@ -88,10 +89,10 @@ func deepPrettyPrintRecur(deepness int, tags map[string]nbt.Tag) {
 
 		value := tags[key]
 		if comp, ok := value.(*nbt.Compound); ok {
-			fmt.Printf("%s%q: (%s len(%d))", prefix, key, comp.Type(), len(comp.Value))
+			fmt.Printf("%s%q: (%s len(%d))", prefix, Blue(key), Green(comp.Type()), Cyan(len(comp.Value)))
 			deepPrettyPrintRecur(deepness+1, comp.Value)
 		} else {
-			fmt.Printf("%s%q: %s", prefix, key, tags[key])
+			fmt.Printf("%s%q: %s", prefix, Blue(key), Cyan(tags[key]))
 		}
 	}
 }
