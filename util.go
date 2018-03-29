@@ -17,7 +17,7 @@ func resolve(from, to string) string {
 }
 
 // Gets a tag with a given path
-func nextTag(path string) (nbt.Tag, error){
+func nextTag(path string) (nbt.Tag, error) {
 	nextPath := resolve(curPath, path)
 
 	next := root.Value[nextPath[1:]]
