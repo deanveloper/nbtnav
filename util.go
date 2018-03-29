@@ -7,6 +7,7 @@ import (
 	"path"
 	"strings"
 	. "github.com/logrusorgru/aurora"
+	"encoding/hex"
 )
 
 // Essentially path.Join but will also clean.
@@ -100,6 +101,17 @@ func prettyString(tag nbt.Tag) string {
 		return fmt.Sprintf("(%s len(%d))", Green(comp.Type().String()[3:]), Blue(len(comp.Value)))
 	} else if list, ok := tag.(*nbt.List); ok {
 		return fmt.Sprintf("(%s len(%d))", Green(list.Type().String()[3:]), Blue(len(list.Value)))
+	} else if barr, ok := tag.(*nbt.ByteArray); ok {
+		bts := make([]byte, len(barr.Value))
+		for i := 0; i < len(bts); i++ {
+			bts[i] = byte(barr.Value[i])
+		}
+		str := hex.EncodeToString(bts)
+		if len(str) >= 40 {
+			str = str[:37]
+			str += "..."
+		}
+		return fmt.Sprintf("(%s len(%d)) %s", Green(barr.Type().String()[3:]), Blue(len(barr.Value)), Cyan(str))
 	} else {
 		return fmt.Sprintf("(%s) %s", Green(tag.Type().String()[3:]), Cyan(tag))
 	}
