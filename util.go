@@ -87,6 +87,10 @@ func deepPrettyPrintRecur(deepness int, tags map[string]nbt.Tag) {
 			prefix += "├───"
 		}
 
+		if comp, ok := tags[key].(*nbt.Compound); ok {
+			deepPrettyPrintRecur(deepness + 1, comp.Value)
+		}
+
 		fmt.Printf("%s %s: %s\n", prefix, Blue(key), prettyString(tags[key]))
 	}
 }
@@ -97,6 +101,6 @@ func prettyString(tag nbt.Tag) string {
 	} else if list, ok := tag.(*nbt.List); ok {
 		return fmt.Sprintf("(%s len(%d))", Green(list.Type().String()[3:]), Blue(len(list.Value)))
 	} else {
-		return fmt.Sprintf("(%s) %s", Green(list.Type().String()[3:]), Blue(tag))
+		return fmt.Sprintf("(%s) %s", Green(list.Type().String()[3:]), Cyan(tag))
 	}
 }
