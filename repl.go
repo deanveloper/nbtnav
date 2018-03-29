@@ -13,7 +13,7 @@ func startRepl(startAt *nbt.Compound) {
 	root = startAt
 	scanner := bufio.NewScanner(os.Stdin)
 
-	fmt.Printf("[%s] >> ", curPath)
+	fmt.Printf("[ %s ] >> ", curPath)
 	for scanner.Scan() {
 		// read
 		str := scanner.Text()
