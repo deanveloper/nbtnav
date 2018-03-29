@@ -97,18 +97,52 @@ func deepPrettyPrintRecur(deepness int, tags map[string]nbt.Tag) {
 	}
 }
 
+// Prints a tag out in a better-looking way
 func prettyString(tag nbt.Tag) string {
-	if comp, ok := tag.(*nbt.Compound); ok {
-		return fmt.Sprintf("(%s len(%d))", Green(comp.Type().String()[3:]), Blue(len(comp.Value)))
-	} else if list, ok := tag.(*nbt.List); ok {
-		return fmt.Sprintf("(%s len(%d))", Green(list.Type().String()[3:]), Blue(len(list.Value)))
-	} else if barr, ok := tag.(*nbt.ByteArray); ok {
-		return prettyByteArray(barr, false)
-	} else {
-		return fmt.Sprintf("(%s) %s", Green(tag.Type().String()[3:]), Cyan(tag))
+	// Byte
+	if v, ok := tag.(*nbt.Int8); ok {
+		return fmt.Sprintf("(%s) %s", Green(tag.Type().String()[3:]), Cyan(v.Int8))
 	}
+	// Short
+	if v, ok := tag.(*nbt.Int16); ok {
+		return fmt.Sprintf("(%s) %s", Green(tag.Type().String()[3:]), Cyan(v.Int16))
+	}
+	// Int
+	if v, ok := tag.(*nbt.Int32); ok {
+		return fmt.Sprintf("(%s) %s", Green(tag.Type().String()[3:]), Cyan(v.Int32))
+	}
+	// Long
+	if v, ok := tag.(*nbt.Int64); ok {
+		return fmt.Sprintf("(%s) %s", Green(tag.Type().String()[3:]), Cyan(v.Int64))
+	}
+	// Float
+	if v, ok := tag.(*nbt.Float32); ok {
+		return fmt.Sprintf("(%s) %s", Green(tag.Type().String()[3:]), Cyan(v.Float32))
+	}
+	// Double
+	if v, ok := tag.(*nbt.Float64); ok {
+		return fmt.Sprintf("(%s) %s", Green(tag.Type().String()[3:]), Cyan(v.Float64))
+	}
+	// ByteArray
+	if v, ok := tag.(*nbt.ByteArray); ok {
+		return prettyByteArray(v, false)
+	}
+	// String
+	if v, ok := tag.(*nbt.String); ok {
+		return fmt.Sprintf("(%s) %s", Green(tag.Type().String()[3:]), Cyan(v.Value))
+	}
+	// List
+	if v, ok := tag.(*nbt.List); ok {
+		return fmt.Sprintf("(%s(%s) len(%d))", Green(tag.Type().String()[3:]), Green(v.Typ.String()[3:]), Blue(len(v.Value)))
+	}
+	// Compound
+	if v, ok := tag.(*nbt.Compound); ok {
+		return fmt.Sprintf("(%s len(%d))", Green(tag.Type().String()[3:]), Blue(len(v.Value)))
+	}
+	return fmt.Sprintf("(%s) %s", Green(tag.Type().String()[3:]), Cyan(tag))
 }
 
+// Function specifically for printing out byte arrays
 func prettyByteArray(tag *nbt.ByteArray, longForm bool) string {
 	var buf bytes.Buffer
 
