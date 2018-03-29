@@ -71,6 +71,11 @@ func deepPrettyPrint(nbt map[string]nbt.Tag) {
 func deepPrettyPrintRecur(deepness int, tags map[string]nbt.Tag) {
 	// sort keys
 	keys := make([]string, len(tags))
+	i := 0
+	for key := range tags {
+		keys[i] = key
+		i++
+	}
 	sort.Strings(keys)
 
 	// https://en.wikipedia.org/wiki/Box-drawing_character
