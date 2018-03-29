@@ -44,6 +44,11 @@ func nextTag(nbtPath string) (nbt.Tag, error) {
 func prettyPrint(tags map[string]nbt.Tag) {
 	// sort keys
 	keys := make([]string, len(tags))
+	i := 0
+	for key := range tags {
+		keys[i] = key
+		i++
+	}
 	sort.Strings(keys)
 
 	for _, key := range keys {
