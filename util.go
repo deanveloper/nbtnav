@@ -16,13 +16,26 @@ func resolve(from, to string) string {
 	return path.Clean(path.Join(from, to))
 }
 
-// Gets a tag with a given path
-func nextTag(path string) (nbt.Tag, error) {
-	nextPath := resolve(curPath, path)
+// Gets a tag with a given path, relative to the current tag
+func nextTag(nbtPath string) (nbt.Tag, error) {
+	absPath := resolve(curPath, nbtPath)
 
-	next := root.Value[nextPath[1:]]
-	if next == nil {
-		return nil, errNotFound
+	if absPath == "/" {
+		return root, nil
+	}
+
+	// Remove leading slash
+	absPath = absPath[1:]
+
+	split := strings.SplitN(absPath, "/", 2)
+	next := root.Value[split[0]]
+	for split[1] != "" {
+		split = strings.SplitN(absPath, "/", 2)
+		next = root.Value[split[0]]
+
+		if next == nil {
+			return nil, errNotFound
+		}
 	}
 	return next, nil
 }
