@@ -22,7 +22,7 @@ var errIsCompound = errors.New("cannot print out a compound")
 var errNotEnoughArgs = errors.New("not enough arguments")
 
 // represents a map of command names to the functions they run
-var commands map[string]command = map[string]command{
+var commands = map[string]command{
 	"cd":   cdCommand,
 	"ls":   lsCommand,
 	"tree": treeCommand,
