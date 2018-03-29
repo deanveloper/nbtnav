@@ -17,7 +17,7 @@ var root *nbt.Compound
 var curPath = "/"
 
 var errNotFound = errors.New("cannot find anything with that path")
-var errNotCompound = errors.New("cannot navigate into a non-compound")
+var errNotCompound = errors.New("not a compound")
 var errIsCompound = errors.New("cannot print out a compound")
 var errNotEnoughArgs = errors.New("not enough arguments")
 
@@ -37,7 +37,7 @@ func cdCommand(args string) error {
 		return nil
 	}
 
-	next, err := customLookup(args)
+	next, err := nextTag(args)
 	if err != nil {
 		return err
 	}
@@ -62,13 +62,17 @@ func lsCommand(args string) error {
 
 	if len(args) == 0 {
 
-		tag, _ := customLookup(".")
-		prettyPrint(tag.(*nbt.Compound).Value)
+		tag, _ := nextTag(".")
+		if comp, ok := tag.(*nbt.Compound); ok {
+			prettyPrint(comp.Value)
+		} else {
+			return errNotCompound
+		}
 
 	} else {
 
 		path := resolve(curPath, args)
-		tag, _ := customLookup(path)
+		tag, _ := nextTag(path)
 
 		if comp, ok := tag.(*nbt.Compound); ok {
 			prettyPrint(comp.Value)
@@ -89,13 +93,13 @@ func treeCommand(args string) error {
 
 	if len(args) == 0 {
 
-		tag, _ := customLookup(".")
+		tag, _ := nextTag(".")
 		deepPrettyPrint(tag.(*nbt.Compound).Value)
 
 	} else {
 
 		path := resolve(curPath, args)
-		tag, _ := customLookup(path)
+		tag, _ := nextTag(path)
 
 		if comp, ok := tag.(*nbt.Compound); ok {
 			deepPrettyPrint(comp.Value)
@@ -119,7 +123,7 @@ func catCommand(args string) error {
 	} else {
 
 		path := resolve(curPath, args)
-		tag, _ := customLookup(path)
+		tag, _ := nextTag(path)
 
 		if _, ok := tag.(*nbt.Compound); ok {
 			return errIsCompound

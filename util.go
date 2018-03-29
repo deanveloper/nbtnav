@@ -4,40 +4,21 @@ import (
 	"fmt"
 	"github.com/minero/minero-go/proto/nbt"
 	"sort"
+	"path"
 	"strings"
 )
 
 // Resolves an NBT path
 func resolve(from, to string) string {
-	split := strings.SplitN(to, "/", 2)
-	nextPath := split[0]
-	if nextPath == ".." {
-		from = from[:len(curPath)-1][:strings.LastIndex(from, "/")+1]
-	} else if nextPath == "." {
-		// do nothing
-	} else if nextPath == "" {
-		from = "/"
-	} else {
-		from = curPath + nextPath
+	if strings.HasPrefix(to, "/") {
+		return path.Clean(to)
 	}
-
-	if from == "" {
-		from = "/"
-	}
-
-	if len(split) == 2 {
-		return resolve(from, split[1])
-	}
-	return from
+	return path.Clean(path.Join(from, to))
 }
 
-// Performs a lookup on a compound. This is not a command.
-func customLookup(arg string) (nbt.Tag, error) {
-	nextPath := resolve(curPath, arg)
-
-	if nextPath == "" {
-		return nil, errNotFound
-	}
+// Gets a tag with a given path
+func nextTag(path string) (nbt.Tag, error){
+	nextPath := resolve(curPath, path)
 
 	next := root.Value[nextPath[1:]]
 	if next == nil {
