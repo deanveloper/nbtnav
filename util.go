@@ -8,6 +8,7 @@ import (
 	"strings"
 	. "github.com/logrusorgru/aurora"
 	"encoding/hex"
+	"bytes"
 )
 
 // Essentially path.Join but will also clean.
@@ -102,17 +103,29 @@ func prettyString(tag nbt.Tag) string {
 	} else if list, ok := tag.(*nbt.List); ok {
 		return fmt.Sprintf("(%s len(%d))", Green(list.Type().String()[3:]), Blue(len(list.Value)))
 	} else if barr, ok := tag.(*nbt.ByteArray); ok {
-		bts := make([]byte, len(barr.Value))
-		for i := 0; i < len(bts); i++ {
-			bts[i] = byte(barr.Value[i])
-		}
-		str := hex.EncodeToString(bts)
-		if len(str) >= 40 {
-			str = str[:37]
-			str += "..."
-		}
-		return fmt.Sprintf("(%s len(%d)) %s", Green(barr.Type().String()[3:]), Blue(len(barr.Value)), Cyan(str))
+		return fmt.Sprintf("(%s len(%d)) %s", Green(barr.Type().String()[3:]), Blue(len(barr.Value)), Cyan(hexify(barr, false)))
 	} else {
 		return fmt.Sprintf("(%s) %s", Green(tag.Type().String()[3:]), Cyan(tag))
 	}
+}
+
+func hexify(tag *nbt.ByteArray, longForm bool) string {
+	var buf bytes.Buffer
+
+	if longForm || len(tag.Value) <= 40 {
+		for i := 0; i < len(tag.Value); i++ {
+			buf.WriteByte(byte(tag.Value[i]))
+		}
+	} else {
+		for i := 0; i < 37; i++ {
+			buf.WriteByte(byte(tag.Value[i]))
+		}
+	}
+
+	str := hex.EncodeToString(buf.Bytes())
+	if len(str) >= 40 {
+		str = str[:37]
+		str += "..."
+	}
+	return str
 }
