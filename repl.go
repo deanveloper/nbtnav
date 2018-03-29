@@ -6,6 +6,7 @@ import (
 	"github.com/minero/minero-go/proto/nbt"
 	"os"
 	"strings"
+	. "github.com/logrusorgru/aurora"
 )
 
 // Starts the read-evaluate-print-loop
@@ -14,7 +15,7 @@ func startRepl(startAt *nbt.Compound) {
 	scanner := bufio.NewScanner(os.Stdin)
 
 	for {
-		fmt.Printf("[ %s ] >> ", curPath)
+		fmt.Printf("[ %s ] >> ", Magenta(curPath))
 		if !scanner.Scan() {
 			break
 		}
@@ -37,13 +38,13 @@ func startRepl(startAt *nbt.Compound) {
 
 		// print
 		if cmd == nil {
-			fmt.Println("Command not found: " + cmdString)
+			fmt.Println(Red("Command not found:"), Red(cmdString))
 			continue
 		}
 
 		err := cmd(args)
 		if err != nil {
-			fmt.Println("Error:", err)
+			fmt.Println(Red("Error:"), Red(err))
 			continue
 		}
 
