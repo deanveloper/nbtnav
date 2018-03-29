@@ -8,6 +8,8 @@ import (
 	"github.com/minero/minero-go/proto/nbt"
 	"io/ioutil"
 	"os"
+	"compress/gzip"
+	"compress/zlib"
 )
 
 func main() {
@@ -31,7 +33,31 @@ func getCompoundFromArgs() *nbt.Compound {
 		file, err := ioutil.ReadFile(os.Args[1])
 		checkErr(err)
 
-		root, err = nbt.Read(bytes.NewReader(file))
+		// Try uncompressed
+		reader := bytes.NewReader(file)
+		root, err = nbt.Read(reader)
+		if err == nil {
+			return root
+		}
+
+		// Try gzip
+		gReader, err := gzip.NewReader(reader)
+		if err == nil {
+			root, err = nbt.Read(gReader)
+			if err == nil {
+				return root
+			}
+		}
+
+		// Try zlib
+		zReader, err := zlib.NewReader(reader)
+		if err == nil {
+			root, err = nbt.Read(zReader)
+			if err == nil {
+				return root
+			}
+		}
+
 		checkErr(err)
 
 	} else {
