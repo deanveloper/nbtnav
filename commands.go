@@ -127,8 +127,10 @@ func catCommand(args string) error {
 
 		if _, ok := tag.(*nbt.Compound); ok {
 			return errIsCompound
+		} else if barr, ok := tag.(*nbt.ByteArray); ok {
+			fmt.Println(prettyByteArray(barr, true))
 		} else {
-			fmt.Println(tag)
+			fmt.Println(prettyString(tag))
 		}
 	}
 

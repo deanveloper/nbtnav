@@ -103,13 +103,13 @@ func prettyString(tag nbt.Tag) string {
 	} else if list, ok := tag.(*nbt.List); ok {
 		return fmt.Sprintf("(%s len(%d))", Green(list.Type().String()[3:]), Blue(len(list.Value)))
 	} else if barr, ok := tag.(*nbt.ByteArray); ok {
-		return fmt.Sprintf("(%s len(%d)) %s", Green(barr.Type().String()[3:]), Blue(len(barr.Value)), Cyan(hexify(barr, false)))
+		return prettyByteArray(barr, false)
 	} else {
 		return fmt.Sprintf("(%s) %s", Green(tag.Type().String()[3:]), Cyan(tag))
 	}
 }
 
-func hexify(tag *nbt.ByteArray, longForm bool) string {
+func prettyByteArray(tag *nbt.ByteArray, longForm bool) string {
 	var buf bytes.Buffer
 
 	if longForm || len(tag.Value) <= 40 {
@@ -127,5 +127,5 @@ func hexify(tag *nbt.ByteArray, longForm bool) string {
 		str = str[:37]
 		str += "..."
 	}
-	return str
+	return fmt.Sprintf("(%s len(%d)) %s", Green(tag.Type().String()[3:]), Blue(len(tag.Value)), Cyan(str))
 }
