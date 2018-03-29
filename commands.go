@@ -16,9 +16,9 @@ var root *nbt.Compound
 // represents the nbt path we are at
 var curPath = "/"
 
-var errNotFound = errors.New("cannot find anything with that path")
+var errNotFound = errors.New("cannot find tag with that path")
 var errNotCompound = errors.New("not a compound")
-var errIsCompound = errors.New("cannot print out a compound")
+var errPrintedCompound = errors.New("cannot print out a compound")
 var errNotEnoughArgs = errors.New("not enough arguments")
 
 // represents a map of command names to the functions they run
@@ -121,10 +121,13 @@ func catCommand(args string) error {
 	} else {
 
 		path := resolve(curPath, args)
-		tag, _ := nextTag(path)
+		tag, err := nextTag(path)
+		if err != nil {
+			return err
+		}
 
 		if _, ok := tag.(*nbt.Compound); ok {
-			return errIsCompound
+			return errPrintedCompound
 		} else if barr, ok := tag.(*nbt.ByteArray); ok {
 			fmt.Println(prettyByteArray(barr, true))
 		} else {

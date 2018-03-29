@@ -40,6 +40,9 @@ func nextTag(nbtPath string) (nbt.Tag, error) {
 			return nil, errNotFound
 		}
 	}
+	if next == nil {
+		return nil, errNotFound
+	}
 	return next, nil
 }
 
@@ -101,27 +104,27 @@ func deepPrettyPrintRecur(deepness int, tags map[string]nbt.Tag) {
 func prettyString(tag nbt.Tag) string {
 	// Byte
 	if v, ok := tag.(*nbt.Int8); ok {
-		return fmt.Sprintf("(%s) %s", Green(tag.Type().String()[3:]), Cyan(v.Int8))
+		return fmt.Sprintf("(%s) %d", Green(tag.Type().String()[3:]), Cyan(v.Int8))
 	}
 	// Short
 	if v, ok := tag.(*nbt.Int16); ok {
-		return fmt.Sprintf("(%s) %s", Green(tag.Type().String()[3:]), Cyan(v.Int16))
+		return fmt.Sprintf("(%s) %d", Green(tag.Type().String()[3:]), Cyan(v.Int16))
 	}
 	// Int
 	if v, ok := tag.(*nbt.Int32); ok {
-		return fmt.Sprintf("(%s) %s", Green(tag.Type().String()[3:]), Cyan(v.Int32))
+		return fmt.Sprintf("(%s) %d", Green(tag.Type().String()[3:]), Cyan(v.Int32))
 	}
 	// Long
 	if v, ok := tag.(*nbt.Int64); ok {
-		return fmt.Sprintf("(%s) %s", Green(tag.Type().String()[3:]), Cyan(v.Int64))
+		return fmt.Sprintf("(%s) %d", Green(tag.Type().String()[3:]), Cyan(v.Int64))
 	}
 	// Float
 	if v, ok := tag.(*nbt.Float32); ok {
-		return fmt.Sprintf("(%s) %s", Green(tag.Type().String()[3:]), Cyan(v.Float32))
+		return fmt.Sprintf("(%s) %.2f", Green(tag.Type().String()[3:]), Cyan(v.Float32))
 	}
 	// Double
 	if v, ok := tag.(*nbt.Float64); ok {
-		return fmt.Sprintf("(%s) %s", Green(tag.Type().String()[3:]), Cyan(v.Float64))
+		return fmt.Sprintf("(%s) %.2f", Green(tag.Type().String()[3:]), Cyan(v.Float64))
 	}
 	// ByteArray
 	if v, ok := tag.(*nbt.ByteArray); ok {
@@ -140,6 +143,31 @@ func prettyString(tag nbt.Tag) string {
 		return fmt.Sprintf("(%s len(%d))", Green(tag.Type().String()[3:]), Blue(len(v.Value)))
 	}
 	return fmt.Sprintf("(%s) %s", Green(tag.Type().String()[3:]), Cyan(tag))
+}
+
+// Function specifically for printing out floats. Panics if tag is not a float.
+func prettyFloat(tag nbt.Tag, longForm bool) string {
+	if longForm {
+		// Float
+		if v, ok := tag.(*nbt.Float32); ok {
+			return fmt.Sprintf("(%s) %f", Green(tag.Type().String()[3:]), Cyan(v.Float32))
+		}
+		// Double
+		if v, ok := tag.(*nbt.Float64); ok {
+			return fmt.Sprintf("(%s) %f", Green(tag.Type().String()[3:]), Cyan(v.Float64))
+		}
+	} else {
+		// Float
+		if v, ok := tag.(*nbt.Float32); ok {
+			return fmt.Sprintf("(%s) %.2f", Green(tag.Type().String()[3:]), Cyan(v.Float32))
+		}
+		// Double
+		if v, ok := tag.(*nbt.Float64); ok {
+			return fmt.Sprintf("(%s) %.2f", Green(tag.Type().String()[3:]), Cyan(v.Float64))
+		}
+	}
+
+	panic("Provided tag was not a float type")
 }
 
 // Function specifically for printing out byte arrays
