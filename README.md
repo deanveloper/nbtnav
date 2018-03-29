@@ -1,7 +1,18 @@
 # NBTNav
 View NBT files within a terminal window.
 
-Use `nbtnav <file>` to view an nbt file!
+## Installation
+I'm too lazy to provide download links, but luckily Golang
+makes compiling from source really easy.
+
+1. [install Golang and set your GOPATH](https://golang.org/doc/install).
+2. (Optional) Add $GOPATH/bin to your system path
+3. Run `go get github.com/deanveloper/nbtnav`
+4. The executable is now located at $GOPATH/bin/nbtnav. If you skipped step 2, either
+move or symlink this file to one of the directories in your PATH
+
+## Usage
+Use `nbtnav <file>` to view an nbt file! Easy as that.
 
 ## Commands
 Once you have run `nbtnav <file>`, you will be given a command prompt. 
