@@ -49,9 +49,9 @@ func prettyPrint(tags map[string]nbt.Tag) {
 	for _, key := range keys {
 		value := tags[key]
 		if comp, ok := value.(*nbt.Compound); ok {
-			fmt.Printf("%q: (%s len(%d))", key, comp.Type(), len(comp.Value))
+			fmt.Printf("%q: (%s len(%d))\n", key, comp.Type(), len(comp.Value))
 		} else {
-			fmt.Printf("%q: %s", key, tags[key])
+			fmt.Printf("%q: %s\n", key, tags[key])
 		}
 	}
 }
