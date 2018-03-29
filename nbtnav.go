@@ -30,16 +30,17 @@ func getCompoundFromArgs() *nbt.Compound {
 			os.Exit(0)
 		}
 
-		file, err := ioutil.ReadFile(os.Args[1])
+		fileBytes, err := ioutil.ReadFile(os.Args[1])
 		checkErr(err)
 
 		// Try uncompressed
-		reader := bytes.NewReader(file)
+		reader := bytes.NewReader(fileBytes)
 		root, err = nbt.Read(reader)
 		if err == nil {
 			return root
 		}
 
+		reader = bytes.NewReader(fileBytes)
 		// Try gzip
 		gReader, err := gzip.NewReader(reader)
 		if err == nil {
@@ -49,6 +50,7 @@ func getCompoundFromArgs() *nbt.Compound {
 			}
 		}
 
+		reader = bytes.NewReader(fileBytes)
 		// Try zlib
 		zReader, err := zlib.NewReader(reader)
 		if err == nil {
