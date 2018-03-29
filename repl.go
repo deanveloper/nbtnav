@@ -13,9 +13,9 @@ func startRepl(startAt *nbt.Compound) {
 	root = startAt
 	scanner := bufio.NewScanner(os.Stdin)
 
+	fmt.Printf("%q >>> ", curPath)
 	for scanner.Scan() {
 		// read
-		fmt.Printf("%q >>> ", curPath)
 		str := scanner.Text()
 
 		// evaluate
