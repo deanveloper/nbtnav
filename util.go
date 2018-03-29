@@ -60,7 +60,7 @@ func deepPrettyPrint(nbt map[string]nbt.Tag) {
 }
 
 // Recursively prints an nbt tree with a beautiful tree structure.
-func deepPrettyPrintRecur(deepness int, tags map[string]nbt.Tag) {
+func deepPrettyPrintRecur(depth int, tags map[string]nbt.Tag) {
 	// sort keys
 	keys := make([]string, len(tags))
 	i := 0
@@ -75,7 +75,7 @@ func deepPrettyPrintRecur(deepness int, tags map[string]nbt.Tag) {
 	for index, key := range keys {
 
 		prefix := ""
-		for i := 0; i < deepness; i++ {
+		for i := 0; i < depth; i++ {
 			prefix += "│   "
 		}
 		if index == len(keys)-1 {
@@ -87,7 +87,7 @@ func deepPrettyPrintRecur(deepness int, tags map[string]nbt.Tag) {
 		fmt.Printf("%s %s: %s\n", prefix, Blue(key), prettyString(tags[key]))
 
 		if comp, ok := tags[key].(*nbt.Compound); ok {
-			deepPrettyPrintRecur(deepness + 1, comp.Value)
+			deepPrettyPrintRecur(depth + 1, comp.Value)
 		}
 	}
 }
