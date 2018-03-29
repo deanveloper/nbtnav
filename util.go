@@ -32,7 +32,7 @@ func nextTag(nbtPath string) (nbt.Tag, error) {
 
 	split := strings.SplitN(absPath, "/", 2)
 	next := root.Value[split[0]]
-	for len(split) == 1 || split[1] != "" {
+	for len(split) > 1 && split[1] != "" {
 		split = strings.SplitN(absPath, "/", 2)
 		next = root.Value[split[0]]
 

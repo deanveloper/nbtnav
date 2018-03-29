@@ -48,8 +48,6 @@ func cdCommand(args string) error {
 
 	curPath = resolve(curPath, args)
 
-	fmt.Println("Entered", args)
-
 	return nil
 }
 
