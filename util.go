@@ -239,7 +239,7 @@ func setTagValue(tag nbt.Tag, val string) error {
 
 func typeFromString(str string) (nbt.TagType, error) {
 	for tag := nbt.TagEnd; tag <= nbt.TagIntArray; tag++ {
-		if str == tag.String()[3:] {
+		if strings.ToLower(str) == strings.ToLower(tag.String()[3:]) {
 			return tag, nil
 		}
 	}
