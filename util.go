@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-// Resolves an NBT path
+// Essentially path.Join but will also clean.
 func resolve(from, to string) string {
 	if strings.HasPrefix(to, "/") {
 		return path.Clean(to)

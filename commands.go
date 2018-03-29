@@ -60,7 +60,7 @@ func lsCommand(args string) error {
 		return nil
 	}
 
-	if len(args) == 0 {
+	if args == "" {
 
 		tag, _ := nextTag(".")
 		if comp, ok := tag.(*nbt.Compound); ok {
@@ -91,7 +91,7 @@ func treeCommand(args string) error {
 		return nil
 	}
 
-	if len(args) == 0 {
+	if args == "" {
 
 		tag, _ := nextTag(".")
 		deepPrettyPrint(tag.(*nbt.Compound).Value)
@@ -118,7 +118,7 @@ func catCommand(args string) error {
 		return nil
 	}
 
-	if len(args) == 0 {
+	if args == "" {
 		return errNotEnoughArgs
 	} else {
 
