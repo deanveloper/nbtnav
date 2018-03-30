@@ -195,7 +195,12 @@ func setCommand(arg string) error {
 	}
 
 	newTag := typ.New()
-	setTagValue(newTag, val)
+	if val != "" {
+		err = setTagValue(newTag, val)
+		if err != nil {
+			return err
+		}
+	}
 
 	parentTag, err := pathToTag(parentPath)
 	if err != nil {
