@@ -20,12 +20,15 @@ The command names in NBTNav are inspired by those found in bash.
 
 * `help`: Lists all commands
 * `cd <compound>`: Moves into an NBT Compound
-* `ls [compound]`: Lists all elements within the compound you are in, or the one that you supply
+* `ls [compound]`: Lists all elements within the compound you are in,
+or the one that you supply
 * `tree [compound]`: Similar to `ls`, but does a deep search, showing the entire tree
 * `cat <tag>`: Displays the value at a given tag
+*  save \[compress\] \[output\] : Saves the current NBT tree to output. `compress`
+can be any of `gzip`, `zlib`, or `none`(default). `output` is the output file and
+defaults to the original file name.
 * `set <tag> <type> [value]`: Sets the tag to the give type and value
 * `exit`: Exits NBTNav
 
 ## Future Features
-* Commands to manipulate NBT data
 * Sort NBT tags in the order they appear in (not a necessary feature, but could possibly be useful somehow)
