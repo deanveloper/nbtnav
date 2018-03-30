@@ -10,6 +10,9 @@ import (
 	"strconv"
 	. "github.com/logrusorgru/aurora"
 	"bufio"
+	"io"
+	"compress/gzip"
+	"compress/zlib"
 )
 
 // represents a command
@@ -29,17 +32,19 @@ var commands = map[string]command{
 	"tree": treeCommand,
 	"cat":  catCommand,
 	"set":  setCommand,
+	"save": saveCommand,
 	"exit": exitCommand,
 }
 
 var help = map[string]string{
-	"help":                     "Shows command list",
+	"help":                     "Shows command list.",
 	"cd <compound>":            "Switches context to the provided compound. \"..\" supported.",
 	"ls [compound]":            "Lists the tags in the current context, or provided compound.",
 	"tree [compound]":          "Same as ls, but recursive.",
 	"cat <tag>":                "Prints out the value of the provided tag.",
 	"set <tag> <type> [value]": "Sets a tag's value/type.",
-	"exit":                     "Exits nbtnav",
+	"save [compress] [output]": "Saves to output. Compression can be gzip, zlib, or none.",
+	"exit":                     "Exits nbtnav.",
 }
 
 func helpCommand(arg string) error {
@@ -203,6 +208,51 @@ func setCommand(arg string) error {
 	} else {
 		return errNotFound
 	}
+}
+
+func saveCommand(arg string) error {
+	args := parseMultiArgs(arg)
+	var compress, output string
+
+	if len(args) >= 1 {
+		compress = args[0]
+	} else {
+		compress = os.Args[1]
+	}
+	if len(args) >= 2 {
+		output = strings.ToLower(args[1])
+	} else {
+		output = "none"
+	}
+
+	if output != "gzip" && output != "zlib" && output != "none" {
+		return errInvalidCompression
+	}
+
+	f, err := os.Create(output)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	var w io.Writer = f
+
+	if compress == "gzip" {
+		gWriter := gzip.NewWriter(w)
+		defer gWriter.Close()
+		w = gWriter
+	} else if compress == "zlib" {
+		zWriter := zlib.NewWriter(w)
+		defer zWriter.Close()
+		w = zWriter
+	}
+
+	_, err = root.WriteTo(f)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Simple way to parse multiple arguments into a slice. Not very advanced but avoids
