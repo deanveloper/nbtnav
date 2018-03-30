@@ -215,17 +215,17 @@ func saveCommand(arg string) error {
 	var compress, output string
 
 	if len(args) >= 1 {
-		compress = args[0]
+		compress = strings.ToLower(args[0])
 	} else {
-		compress = os.Args[1]
+		compress = "none"
 	}
 	if len(args) >= 2 {
-		output = strings.ToLower(args[1])
+		output = args[1]
 	} else {
-		output = "none"
+		output = os.Args[1]
 	}
 
-	if output != "gzip" && output != "zlib" && output != "none" {
+	if compress != "gzip" && compress != "zlib" && compress != "none" {
 		return errInvalidCompression
 	}
 
@@ -247,7 +247,7 @@ func saveCommand(arg string) error {
 		w = zWriter
 	}
 
-	_, err = root.WriteTo(f)
+	err = nbt.Write(w, root)
 	if err != nil {
 		return err
 	}
